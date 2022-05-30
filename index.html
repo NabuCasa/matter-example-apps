@@ -44,6 +44,9 @@
         max-width: 100%;
         overflow-y: scroll;
       }
+      li {
+        padding: 4px 0;
+      }
       .footer {
         margin-top: 24px;
         border-top: 1px solid #ccc;
@@ -90,10 +93,8 @@
         >
         to be able to test Matter locally.
       </p>
-      <p>
-        Select an app to install the example and access the Matter REPL (<code>matter help</code>) to
-        configure Wi-Fi on the device (<code>matter wifi connect ssid psk</code>) or factory reset it (<code>matter device factoryreset</code>).
-      </p>
+      <p>Select an app to install the example and access the Matter REPL.</p>
+
       <ul class="radios">
         <li>
           <label>
@@ -125,6 +126,31 @@
       <p class="button-row" align="center">
         <esp-web-install-button class="invisible"></esp-web-install-button>
       </p>
+
+      <p>Use the following Matter REPL commands:</p>
+      <ul>
+        <li>
+          <code>matter help</code><br />
+          list all available commands. Get more help by adding help to
+          subsequent commands (ie
+          <code>matter wifi help</code>)
+        </li>
+        <li>
+          <code>matter onboardingcodes ble</code><br />
+          print pairing QR code.
+          <a href="https://dhrishi.github.io/connectedhomeip/qrcode.html"
+            >Turn into QR picture with this tool.</a
+          >
+        </li>
+        <li>
+          <code>matter wifi connect "network" "password"</code><br />
+          Configure Wi-Fi on the device
+        </li>
+        <li>
+          <code>matter device factoryreset</code><br />
+          factory reset device
+        </li>
+      </ul>
 
       <div class="footer">
         <a href="https://github.com/project-chip/connectedhomeip"
