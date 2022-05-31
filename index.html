@@ -87,10 +87,7 @@
     <div class="content">
       <h1>Matter Example installer</h1>
       <p>
-        Install these example applications on an
-        <a href="https://www.mouser.com/ProductDetail/356-ESP32-C3DEVKITM1"
-          >ESP32-C3 DevKit M-1</a
-        >
+        Install these example applications on one of the supported ESP32 boards
         to be able to test Matter locally.
       </p>
       <p>Select an app to install the example and access the Matter REPL.</p>
@@ -103,7 +100,28 @@
               name="type"
               value="lighting-app-example/esp32-c3"
             />
-            Lighting App (<a
+            Lighting App for 
+            <a href="https://www.mouser.com/ProductDetail/356-ESP32-C3DEVKITM1"
+               >ESP32-C3 DevKit M-1</a
+            >
+            (<a
+              href="https://github.com/project-chip/connectedhomeip/tree/master/examples/lighting-app/esp32"
+              >source</a
+            >)
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="radio"
+              name="type"
+              value="lighting-app-example/esp32-c3-m5stamp"
+            />
+            Lighting App for 
+            <a href="https://www.mouser.com/ProductDetail/M5Stack/K122"
+               >M5STAMP (ESP32-C3)</a
+            >
+            (<a
               href="https://github.com/project-chip/connectedhomeip/tree/master/examples/lighting-app/esp32"
               >source</a
             >)
@@ -116,7 +134,11 @@
               name="type"
               value="light-switch-app-example/esp32-c3"
             />
-            Light Switch (<a
+            Light Switch App for
+            <a href="https://www.mouser.com/ProductDetail/356-ESP32-C3DEVKITM1"
+               >ESP32-C3 DevKit M-1</a
+            >
+	      (<a
               href="https://github.com/project-chip/connectedhomeip/tree/master/examples/light-switch-app/esp32"
               >source</a
             >)
