@@ -1,6 +1,6 @@
 {
-  "name": "Matter Lighting App Example",
-  "version": "<unknown>",
+  "name": "Matter Lighting App Example for ESP32-C3-DevKitM-1",
+  "version": "6ef806b792",
   "new_install_improv_wait_time": 0,
   "builds": [
     {
