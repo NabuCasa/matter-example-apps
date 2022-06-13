@@ -1,0 +1,44 @@
+name: Build and Publish Matter Example firmware
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  # Inspired by .github/workflows/examples-esp32.yaml
+  build:
+    name: Build Matter Example firmware
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        firmware:
+          - { "dir": "lighting-app-example/esp32-c3/", "idf_target": "esp32c3" }
+          - { "dir": "lighting-app-example/esp32-c3-m5stamp/", "idf_target": "esp32c3" }
+
+    container:
+      image: connectedhomeip/chip-build-esp32:0.5.77
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Build
+        shell: bash
+        run: |
+          cd connectedhomeip
+          scripts/checkout_submodules.py --shallow --platform esp32
+          source "$IDF_PATH/export.sh"
+          root=examples/lighting-app/esp32/
+          rm -f "$root"/sdkconfig
+          (
+            cd "$root"
+            idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults" set-target "${{ matrix.firmware.idf_target }}" build
+          )
+          ls -la examples/lighting-app/esp32/build/chip-lighting-app.bin
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          name: ${{ matrix.firmware.dir }}
+          path: examples/lighting-app/esp32/build/chip-lighting-app.bin
