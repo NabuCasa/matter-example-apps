@@ -27,7 +27,6 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          mkdir deploy
           cd connectedhomeip
           scripts/checkout_submodules.py --shallow --platform esp32
           source "$IDF_PATH/export.sh"
@@ -37,10 +36,11 @@ jobs:
             cd "$root"
             idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults" set-target "${{ matrix.firmware.idf_target }}" build
           )
-          cp examples/lighting-app/esp32/build/chip-lighting-app.bin ../deploy
-          cp examples/lighting-app/esp32/build/bootloader/bootloader.bin ../deploy
-          cp examples/lighting-app/esp32/build/partition_table/partition-table.bin ../deploy
-          cp examples/lighting-app/esp32/build/ota_data_initial.bin ../deploy
+          mkdir -p ../deploy/${{ matrix.firmware.dir }}
+          cp examples/lighting-app/esp32/build/chip-lighting-app.bin ../deploy/${{ matrix.firmware.dir }}
+          cp examples/lighting-app/esp32/build/bootloader/bootloader.bin ../deploy/${{ matrix.firmware.dir }}
+          cp examples/lighting-app/esp32/build/partition_table/partition-table.bin ../deploy/${{ matrix.firmware.dir }}
+          cp examples/lighting-app/esp32/build/ota_data_initial.bin ../deploy/${{ matrix.firmware.dir }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v3.1.0
         with:
@@ -56,16 +56,16 @@ jobs:
       - uses: actions/download-artifact@v3.0.0
         with:
           name: ${{ matrix.firmware.name }}
-          path: deploy
+          path: ../deploy
 
       - name: Create single manifest.json
         run: |
           jq '.version = "58b3fe5848"' ${{ matrix.firmware.dir }}manifest.json
-      - run: cp -R deploy/* ${{ matrix.firmware.dir }}
+      - run: cp -R ../deploy/* ./
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.3.3
         with:
           branch: main
-          folder: ${{ matrix.firmware.dir }}
+          folder: ./
           clean: ${{ inputs.clean }}
