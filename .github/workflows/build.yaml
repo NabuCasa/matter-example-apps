@@ -13,8 +13,8 @@ jobs:
     strategy:
       matrix:
         firmware:
-          - { "name": "Matter Lighting App Example for ESP32-C3-DevKitM-1", "dir": "lighting-app-example/esp32-c3/", "idf_target": "esp32c3" }
-          - { "name": "Matter Lighting App Example for M5STAMP", "dir": "lighting-app-example/esp32-c3-m5stamp/", "idf_target": "esp32c3" }
+          - { "name": "Matter Lighting App Example for ESP32-C3-DevKitM-1", "shortname": "lighting-app-c3", "dir": "lighting-app-example/esp32-c3/", "idf_target": "esp32c3" }
+          - { "name": "Matter Lighting App Example for M5STAMP", "shortname": "lighting-app-c3-m5stamp", "dir": "lighting-app-example/esp32-c3-m5stamp/", "idf_target": "esp32c3" }
 
     container:
       image: connectedhomeip/chip-build-esp32:0.5.77
@@ -45,7 +45,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3.1.0
         with:
-          name: ${{ matrix.firmware.name }}
+          name: ${{ matrix.firmware.shortname }}
           path: deploy
 
   publish:
