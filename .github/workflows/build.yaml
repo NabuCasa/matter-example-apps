@@ -1,6 +1,7 @@
 name: Build and Publish Matter Example firmware
 
 on:
+  push:
   workflow_dispatch:
 
 jobs:
@@ -59,8 +60,9 @@ jobs:
           path: ../deploy
 
       - name: Create single manifest.json
+        shell: bash
         run: |
-          jq '.version = "58b3fe5848"' ${{ matrix.firmware.dir }}manifest.json
+          jq '.version = "58b3fe5848"' */*/manifest.json
       - run: cp -R ../deploy/* ./
 
       - name: Deploy 🚀
