@@ -30,9 +30,14 @@ jobs:
         run: |
           cd connectedhomeip
           scripts/checkout_submodules.py --shallow --platform esp32
+          for patch in "../${{ matrix.firmware.dir }}/*.patch"; do
+              patch -p1 < "${patch}"
+          done
+
           source "$IDF_PATH/export.sh"
           root=examples/lighting-app/esp32/
           rm -f "$root"/sdkconfig
+          cp "../${{ matrix.firmware.dir }}/sdkconfig.defaults" "${root}"
           (
             cd "$root"
             idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults" set-target "${{ matrix.firmware.idf_target }}" build
