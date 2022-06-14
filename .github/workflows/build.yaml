@@ -62,12 +62,14 @@ jobs:
       - name: Create single manifest.json
         shell: bash
         run: |
-          jq '.version = "58b3fe5848"' */*/manifest.json
+          for file in */*/manifest.json; do
+              jq '.version = "58b3fe58481"' "${file}" > "${file}"
+          done
       - run: cp -R ../deploy/* ./
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.3.3
         with:
-          branch: main
+          branch: add-gh-actions
           folder: ./
           clean: ${{ inputs.clean }}
