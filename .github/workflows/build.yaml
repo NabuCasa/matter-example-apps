@@ -12,8 +12,8 @@ jobs:
     strategy:
       matrix:
         firmware:
-          - { "dir": "lighting-app-example/esp32-c3/", "idf_target": "esp32c3" }
-          - { "dir": "lighting-app-example/esp32-c3-m5stamp/", "idf_target": "esp32c3" }
+          - { "name": "Matter Lighting App Example for ESP32-C3-DevKitM-1", "dir": "lighting-app-example/esp32-c3/", "idf_target": "esp32c3" }
+          - { "name": "Matter Lighting App Example for M5STAMP", "dir": "lighting-app-example/esp32-c3-m5stamp/", "idf_target": "esp32c3" }
 
     container:
       image: connectedhomeip/chip-build-esp32:0.5.77
@@ -44,7 +44,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3.1.0
         with:
-          name: ${{ matrix.firmware.dir }}
+          name: ${{ matrix.firmware.name }}
           path: deploy
 
   publish:
@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@v3.0.2
       - uses: actions/download-artifact@v3.0.0
         with:
-          name: ${{ matrix.firmware.dir }}
+          name: ${{ matrix.firmware.name }}
           path: deploy
 
       - name: Create single manifest.json
