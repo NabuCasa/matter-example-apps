@@ -13,8 +13,24 @@ jobs:
     strategy:
       matrix:
         firmware:
-          - { "name": "Matter Lighting App Example for ESP32-C3-DevKitM-1", "shortname": "lighting-app-c3", "dir": "lighting-app-example/esp32-c3/", "idf_target": "esp32c3" }
-          - { "name": "Matter Lighting App Example for M5STAMP", "shortname": "lighting-app-c3-m5stamp", "dir": "lighting-app-example/esp32-c3-m5stamp/", "idf_target": "esp32c3" }
+          - |
+            {
+              "name": "Matter Lighting App Example for ESP32-C3-DevKitM-1",
+              "shortname": "lighting-app-c3",
+              "dir": "lighting-app-example/esp32-c3/",
+              "root": "examples/lighting-app/esp32/",
+              "appbin": "chip-lighting-app.bin",
+              "idf_target": "esp32c3"
+            }
+          - |
+            {
+              "name": "Matter Lighting App Example for M5STAMP",
+              "shortname": "lighting-app-c3-m5stamp",
+              "dir": "lighting-app-example/esp32-c3-m5stamp/",
+              "root": "examples/lighting-app/esp32/",
+              "appbin": "chip-lighting-app.bin",
+              "idf_target": "esp32c3"
+            }
 
     container:
       image: connectedhomeip/chip-build-esp32:0.5.77
@@ -35,7 +51,7 @@ jobs:
           done
 
           source "$IDF_PATH/export.sh"
-          root=examples/lighting-app/esp32/
+          root="${{ matrix.firmware.root }}"
           rm -f "$root"/sdkconfig
           cp "../${{ matrix.firmware.dir }}/sdkconfig.defaults" "${root}"
           (
@@ -43,7 +59,7 @@ jobs:
             idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults" set-target "${{ matrix.firmware.idf_target }}" build
           )
           mkdir -p ../deploy/${{ matrix.firmware.dir }}
-          cp examples/lighting-app/esp32/build/chip-lighting-app.bin ../deploy/${{ matrix.firmware.dir }}
+          cp examples/lighting-app/esp32/build/${{ matrix.firmware.appbin }} ../deploy/${{ matrix.firmware.dir }}
           cp examples/lighting-app/esp32/build/bootloader/bootloader.bin ../deploy/${{ matrix.firmware.dir }}
           cp examples/lighting-app/esp32/build/partition_table/partition-table.bin ../deploy/${{ matrix.firmware.dir }}
           cp examples/lighting-app/esp32/build/ota_data_initial.bin ../deploy/${{ matrix.firmware.dir }}
