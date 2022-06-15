@@ -46,7 +46,9 @@ jobs:
         run: |
           cd connectedhomeip
           scripts/checkout_submodules.py --shallow --platform esp32
-          for patch in "../${{ matrix.firmware.dir }}/*.patch"; do
+          ls ../
+          ls ../${{ matrix.firmware.dir }}
+          for patch in "../${{ matrix.firmware.dir }}*.patch"; do
               patch -p1 < "${patch}"
           done
 
