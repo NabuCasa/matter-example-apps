@@ -13,8 +13,7 @@ jobs:
     strategy:
       matrix:
         firmware:
-          - |
-            {
+          - {
               "name": "Matter Lighting App Example for ESP32-C3-DevKitM-1",
               "shortname": "lighting-app-c3",
               "dir": "lighting-app-example/esp32-c3/",
@@ -22,8 +21,7 @@ jobs:
               "appbin": "chip-lighting-app.bin",
               "idf_target": "esp32c3"
             }
-          - |
-            {
+          - {
               "name": "Matter Lighting App Example for M5STAMP",
               "shortname": "lighting-app-c3-m5stamp",
               "dir": "lighting-app-example/esp32-c3-m5stamp/",
@@ -46,9 +44,7 @@ jobs:
         run: |
           cd connectedhomeip
           scripts/checkout_submodules.py --shallow --platform esp32
-          ls ../
-          ls ../${{ matrix.firmware.dir }}
-          for patch in "../${{ matrix.firmware.dir }}*.patch"; do
+          for patch in ../${{ matrix.firmware.dir }}*.patch; do
               patch -p1 < "${patch}"
           done
 
