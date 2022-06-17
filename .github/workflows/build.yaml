@@ -27,6 +27,20 @@ jobs:
               "appbin": "chip-lighting-app.bin",
               "idf_target": "esp32c3"
             }
+          - {
+              "name": "light-switch-app-esp32-c3",
+              "dir": "light-switch-app-example/esp32-c3/",
+              "root": "examples/light-switch-app/esp32/",
+              "appbin": "chip-light-switch-app.bin",
+              "idf_target": "esp32c3"
+            }
+          - {
+              "name": "all-clusters-app-esp32-m5-basic-core",
+              "dir": "all-clusters-app-example/esp32-m5-basic-core/",
+              "root": "examples/all-clusters-app/esp32/",
+              "appbin": "chip-all-clusters-app.bin",
+              "idf_target": "esp32"
+            }
 
     container:
       image: connectedhomeip/chip-build-esp32:0.5.77
