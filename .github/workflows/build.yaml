@@ -8,7 +8,7 @@ jobs:
 
   # Inspired by .github/workflows/examples-esp32.yaml
   build:
-    name: Build Matter example - ${{ matrix.firmware.name }}
+    name: Build ${{ matrix.firmware.name }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -59,6 +59,7 @@ jobs:
           cp examples/lighting-app/esp32/build/bootloader/bootloader.bin ../deploy/${{ matrix.firmware.dir }}
           cp examples/lighting-app/esp32/build/partition_table/partition-table.bin ../deploy/${{ matrix.firmware.dir }}
           cp examples/lighting-app/esp32/build/ota_data_initial.bin ../deploy/${{ matrix.firmware.dir }}
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v3.1.0
         with:
@@ -68,6 +69,8 @@ jobs:
   publish:
     name: Publish new firmware and website to GitHub Pages
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs: [build]
     steps:
       - uses: actions/checkout@v3.0.2
@@ -87,6 +90,7 @@ jobs:
         run: |
           cp -R "artifacts/"* ./
           rm -r "artifacts/"
+          rm -r github-pages-deploy-action-temp-deployment-folder/
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.3.3
