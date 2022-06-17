@@ -74,26 +74,32 @@ jobs:
     needs: [build]
     steps:
       - uses: actions/checkout@v3.0.2
+
+      - name: Get firmware git hash
+        run: |
+          ghash=$(git -C connectedhomeip rev-parse --short HEAD)
+          echo "::set-output name=hash::${ghash}"
+        id: git-version
+
       - uses: actions/download-artifact@v3.0.0
         with:
           path: artifacts/
 
-      - name: Set version to current git hash in manifest.json
+      - name: Set version in manifest.json
         shell: bash
         run: |
-          ghash=$(git -C connectedhomeip rev-parse --short HEAD)
           for file in */*/manifest.json; do
-              jq ".version = \"${ghash}\"" "${file}" > "${file}"
+              jq ".version = \"${{ steps.git-version.outputs.hash }}\"" "${file}" > "${file}"
           done
       - name: Copy artifacts
         shell: bash
         run: |
           cp -R "artifacts/"* ./
           rm -r "artifacts/"
-          rm -rf github-pages-deploy-action-temp-deployment-folder/
-
+ 
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4.3.3
+        uses: EndBug/add-and-commit@v9
         with:
-          branch: add-gh-actions
-          folder: ./
+          message: Bump firmware version to ${{ steps.git-version.outputs.hash }}
+          committer_name: GitHub Actions
+          committer_email: actions@github.com
