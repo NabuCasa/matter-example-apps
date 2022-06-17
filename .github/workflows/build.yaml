@@ -8,7 +8,7 @@ jobs:
 
   # Inspired by .github/workflows/examples-esp32.yaml
   build:
-    name: Build Matter example - ${{ matrix.name }}
+    name: Build Matter example - ${{ matrix.firmware.name }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -89,11 +89,12 @@ jobs:
         with:
           path: artifacts/
 
-      - name: Create single manifest.json
+      - name: Set version to current git hash in manifest.json
         shell: bash
         run: |
+          ghash=$(git -C connectedhomeip rev-parse --short HEAD)
           for file in */*/manifest.json; do
-              jq '.version = "58b3fe58481"' "${file}" > "${file}"
+              jq ".version = \"${ghash}\"" "${file}" > "${file}"
           done
       - name: Copy artifacts
         shell: bash
@@ -106,4 +107,3 @@ jobs:
         with:
           branch: add-gh-actions
           folder: ./
-          clean: ${{ inputs.clean }}
