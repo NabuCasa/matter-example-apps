@@ -69,10 +69,10 @@ jobs:
             idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults" set-target "${{ matrix.firmware.idf_target }}" build
           )
           mkdir -p ../deploy/${{ matrix.firmware.dir }}
-          cp examples/lighting-app/esp32/build/${{ matrix.firmware.appbin }} ../deploy/${{ matrix.firmware.dir }}
-          cp examples/lighting-app/esp32/build/bootloader/bootloader.bin ../deploy/${{ matrix.firmware.dir }}
-          cp examples/lighting-app/esp32/build/partition_table/partition-table.bin ../deploy/${{ matrix.firmware.dir }}
-          cp examples/lighting-app/esp32/build/ota_data_initial.bin ../deploy/${{ matrix.firmware.dir }}
+          cp ${{ matrix.firmware.root }}/build/${{ matrix.firmware.appbin }} ../deploy/${{ matrix.firmware.dir }}
+          cp ${{ matrix.firmware.root }}/build/bootloader/bootloader.bin ../deploy/${{ matrix.firmware.dir }}
+          cp ${{ matrix.firmware.root }}/build/partition_table/partition-table.bin ../deploy/${{ matrix.firmware.dir }}
+          cp ${{ matrix.firmware.root }}/build/ota_data_initial.bin ../deploy/${{ matrix.firmware.dir }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3.1.0
