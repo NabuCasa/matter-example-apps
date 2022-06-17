@@ -77,7 +77,7 @@ jobs:
 
       - name: Get firmware git hash
         run: |
-          ghash=$(git -C connectedhomeip rev-parse --short HEAD)
+          ghash=$(git submodule status connectedhomeip | cut -b 2-10)
           echo "::set-output name=hash::${ghash}"
         id: git-version
 
