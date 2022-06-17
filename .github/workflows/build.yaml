@@ -8,7 +8,7 @@ jobs:
 
   # Inspired by .github/workflows/examples-esp32.yaml
   build:
-    name: Build Matter Example firmware
+    name: Build Matter example - ${{ matrix.shortname }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -86,9 +86,8 @@ jobs:
       - name: Copy artifacts
         shell: bash
         run: |
-          for artifact in artifacts/*; do
-              cp -R "${artifact}/*" ./
-          done
+          cp -R "artifacts/"* ./
+          rm -r "artifacts/"
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.3.3
