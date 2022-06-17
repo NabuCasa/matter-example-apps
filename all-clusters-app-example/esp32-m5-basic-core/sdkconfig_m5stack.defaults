@@ -1,5 +1,6 @@
 #
-#    Copyright (c) 2021 Project CHIP Authors
+#    Copyright (c) 2020 Project CHIP Authors
+#    Copyright (c) 2018 Nest Labs, Inc.
 #    All rights reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +16,11 @@
 #    limitations under the License.
 #
 #    Description:
-#      Some useful defaults for the demo app configuration.
+#      CI uses this to select the ESP32 M5Stack.
 #
+CONFIG_IDF_TARGET="esp32"
+CONFIG_IDF_TARGET_ESP32=y
+CONFIG_DEVICE_TYPE_M5STACK=y
 
 # Default to 921600 baud when flashing and monitoring device
 CONFIG_ESPTOOLPY_BAUD_921600B=y
@@ -34,7 +38,18 @@ CONFIG_LWIP_IPV6_AUTOCONFIG=y
 
 # Use a custom partition table
 CONFIG_PARTITION_TABLE_CUSTOM=y
-CONFIG_PARTITION_TABLE_FILENAME="partitions.csv"
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# Vendor and product id
+CONFIG_DEVICE_VENDOR_ID=0xFFF1
+CONFIG_DEVICE_PRODUCT_ID=0x8001
+
+# Main task needs a bit more stack than the default
+# default is 3584, bump this up to 5k.
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=5120
+
+#enable debug shell
+CONFIG_ENABLE_CHIP_SHELL=y
 
 #enable lwIP route hooks
 CONFIG_LWIP_HOOK_IP6_ROUTE_DEFAULT=y
@@ -44,7 +59,12 @@ CONFIG_LWIP_HOOK_ND6_GET_GW_DEFAULT=y
 CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
 CONFIG_ESPTOOLPY_FLASHSIZE="4MB"
 
-CONFIG_ENABLE_CHIP_SHELL=y
+#disable Bluetooth modem sleep
+#enable it may cause GPIO ISR triggers continuously
+CONFIG_BTDM_CTRL_MODEM_SLEEP=n
+CONFIG_BTDM_CTRL_MODEM_SLEEP_MODE_ORIG=n
+CONFIG_BTDM_CTRL_LPCLK_SEL_MAIN_XTAL=n
+
 CONFIG_CHIP_PROJECT_CONFIG="main/include/CHIPProjectConfig.h"
 CONFIG_DEVICE_SOFTWARE_VERSION="55ab764bea"
 CONFIG_DEINIT_BLE_ON_COMMISSIONING_COMPLETE=n

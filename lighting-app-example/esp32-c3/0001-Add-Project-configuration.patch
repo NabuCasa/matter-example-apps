@@ -1,5 +1,5 @@
 From 7d46fced02c7c8d3dd0c448ba5319051ee7c845e Mon Sep 17 00:00:00 2001
-Message-Id: <7d46fced02c7c8d3dd0c448ba5319051ee7c845e.1655250901.git.stefan@agner.ch>
+Message-Id: <7d46fced02c7c8d3dd0c448ba5319051ee7c845e.1655484924.git.stefan@agner.ch>
 From: Stefan Agner <stefan@agner.ch>
 Date: Wed, 15 Jun 2022 01:45:33 +0200
 Subject: [PATCH] Add Project configuration

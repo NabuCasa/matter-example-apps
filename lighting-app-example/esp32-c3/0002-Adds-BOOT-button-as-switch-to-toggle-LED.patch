@@ -1,0 +1,611 @@
+From ffe8175c81278ce4bb71204439bc5f9331d36f14 Mon Sep 17 00:00:00 2001
+Message-Id: <ffe8175c81278ce4bb71204439bc5f9331d36f14.1655484924.git.stefan@agner.ch>
+In-Reply-To: <7d46fced02c7c8d3dd0c448ba5319051ee7c845e.1655484924.git.stefan@agner.ch>
+References: <7d46fced02c7c8d3dd0c448ba5319051ee7c845e.1655484924.git.stefan@agner.ch>
+From: jmmb <jmmb1098@gmail.com>
+Date: Sun, 12 Jun 2022 16:56:20 +0100
+Subject: [PATCH]  Adds BOOT button as switch to toggle LED
+
+---
+ examples/lighting-app/esp32/main/AppTask.cpp  | 172 ++++++++++++++++++
+ examples/lighting-app/esp32/main/Button.cpp   |  48 +++++
+ .../esp32/main/DeviceCallbacks.cpp            |  27 +++
+ .../lighting-app/esp32/main/LEDWidget.cpp     |  23 +++
+ .../esp32/main/include/AppEvent.h             |  54 ++++++
+ .../lighting-app/esp32/main/include/AppTask.h |  68 +++++++
+ .../lighting-app/esp32/main/include/Button.h  |  30 +++
+ .../esp32/main/include/LEDWidget.h            |   7 +-
+ examples/lighting-app/esp32/main/main.cpp     |  13 +-
+ 9 files changed, 436 insertions(+), 6 deletions(-)
+ create mode 100644 examples/lighting-app/esp32/main/AppTask.cpp
+ create mode 100644 examples/lighting-app/esp32/main/Button.cpp
+ create mode 100644 examples/lighting-app/esp32/main/include/AppEvent.h
+ create mode 100644 examples/lighting-app/esp32/main/include/AppTask.h
+ create mode 100644 examples/lighting-app/esp32/main/include/Button.h
+
+diff --git a/examples/lighting-app/esp32/main/AppTask.cpp b/examples/lighting-app/esp32/main/AppTask.cpp
+new file mode 100644
+index 0000000000..bfa8a8d140
+--- /dev/null
++++ b/examples/lighting-app/esp32/main/AppTask.cpp
+@@ -0,0 +1,172 @@
++/*
++ *
++ *    Copyright (c) 2022 Project CHIP Authors
++ *    All rights reserved.
++ *
++ *    Licensed under the Apache License, Version 2.0 (the "License");
++ *    you may not use this file except in compliance with the License.
++ *    You may obtain a copy of the License at
++ *
++ *        http://www.apache.org/licenses/LICENSE-2.0
++ *
++ *    Unless required by applicable law or agreed to in writing, software
++ *    distributed under the License is distributed on an "AS IS" BASIS,
++ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ *    See the License for the specific language governing permissions and
++ *    limitations under the License.
++ */
++
++#include "AppTask.h"
++#include "esp_log.h"
++#include "freertos/FreeRTOS.h"
++
++#include <app-common/zap-generated/attribute-id.h>
++#include <app-common/zap-generated/attribute-type.h>
++#include <app-common/zap-generated/attributes/Accessors.h>
++#include <app-common/zap-generated/cluster-id.h>
++
++#define APP_TASK_NAME "APP"
++#define APP_EVENT_QUEUE_SIZE 10
++#define APP_TASK_STACK_SIZE (3072)
++#define BUTTON_PRESSED 1
++#define APP_LIGHT_SWITCH 1
++
++using namespace ::chip;
++using namespace ::chip::app;
++using namespace ::chip::Credentials;
++using namespace ::chip::DeviceLayer;
++
++static const char * TAG = "app-task";
++
++LEDWidget AppLED;
++Button AppButton;
++
++namespace {
++constexpr EndpointId kLightEndpointId = 1;
++QueueHandle_t sAppEventQueue;
++TaskHandle_t sAppTaskHandle;
++
++} // namespace
++
++AppTask AppTask::sAppTask;
++
++CHIP_ERROR AppTask::StartAppTask()
++{
++    sAppEventQueue = xQueueCreate(APP_EVENT_QUEUE_SIZE, sizeof(AppEvent));
++    if (sAppEventQueue == NULL)
++    {
++        ESP_LOGE(TAG, "Failed to allocate app event queue");
++        return APP_ERROR_EVENT_QUEUE_FAILED;
++    }
++
++    // Start App task.
++    BaseType_t xReturned;
++    xReturned = xTaskCreate(AppTaskMain, APP_TASK_NAME, APP_TASK_STACK_SIZE, NULL, 1, &sAppTaskHandle);
++    return (xReturned == pdPASS) ? CHIP_NO_ERROR : APP_ERROR_CREATE_TASK_FAILED;
++}
++
++CHIP_ERROR AppTask::Init()
++{
++    CHIP_ERROR err = CHIP_NO_ERROR;
++
++    AppLED.Init();
++    AppButton.Init();
++
++    AppButton.SetButtonPressCallback(ButtonPressCallback);
++
++    return err;
++}
++
++void AppTask::AppTaskMain(void * pvParameter)
++{
++    AppEvent event;
++    CHIP_ERROR err = sAppTask.Init();
++    if (err != CHIP_NO_ERROR)
++    {
++        ESP_LOGI(TAG, "AppTask.Init() failed due to %" CHIP_ERROR_FORMAT, err.Format());
++        return;
++    }
++
++    ESP_LOGI(TAG, "App Task started");
++
++    while (true)
++    {
++        BaseType_t eventReceived = xQueueReceive(sAppEventQueue, &event, pdMS_TO_TICKS(10));
++        while (eventReceived == pdTRUE)
++        {
++            sAppTask.DispatchEvent(&event);
++            eventReceived = xQueueReceive(sAppEventQueue, &event, 0); // return immediately if the queue is empty
++        }
++    }
++}
++
++void AppTask::PostEvent(const AppEvent * aEvent)
++{
++    if (sAppEventQueue != NULL)
++    {
++        BaseType_t status;
++        if (xPortInIsrContext())
++        {
++            BaseType_t higherPrioTaskWoken = pdFALSE;
++            status                         = xQueueSendFromISR(sAppEventQueue, aEvent, &higherPrioTaskWoken);
++        }
++        else
++        {
++            status = xQueueSend(sAppEventQueue, aEvent, 1);
++        }
++        if (!status)
++            ESP_LOGE(TAG, "Failed to post event to app task event queue");
++    }
++    else
++    {
++        ESP_LOGE(TAG, "Event Queue is NULL should never happen");
++    }
++}
++
++void AppTask::DispatchEvent(AppEvent * aEvent)
++{
++    if (aEvent->mHandler)
++    {
++        aEvent->mHandler(aEvent);
++    }
++    else
++    {
++        ESP_LOGI(TAG, "Event received with no handler. Dropping event.");
++    }
++}
++
++void AppTask::LightingActionEventHandler(AppEvent * aEvent)
++{
++    AppLED.Toggle();
++    chip::DeviceLayer::PlatformMgr().LockChipStack();
++    sAppTask.UpdateClusterState();
++    chip::DeviceLayer::PlatformMgr().UnlockChipStack();
++}
++
++void AppTask::ButtonPressCallback()
++{
++    AppEvent button_event;
++    button_event.Type     = AppEvent::kEventType_Button;
++    button_event.mHandler = AppTask::LightingActionEventHandler;
++    sAppTask.PostEvent(&button_event);
++}
++
++void AppTask::UpdateClusterState()
++{
++    ESP_LOGI(TAG, "Writting to OnOff cluster");
++    // write the new on/off value
++    EmberAfStatus status = Clusters::OnOff::Attributes::OnOff::Set(kLightEndpointId, AppLED.IsTurnedOn());
++
++    if (status != EMBER_ZCL_STATUS_SUCCESS)
++    {
++        ESP_LOGE(TAG, "Updating on/off cluster failed: %x", status);
++    }
++
++    ESP_LOGE(TAG, "Writting to Current Level cluster");
++    status = Clusters::LevelControl::Attributes::CurrentLevel::Set(kLightEndpointId, AppLED.GetLevel());
++
++    if (status != EMBER_ZCL_STATUS_SUCCESS)
++    {
++        ESP_LOGE(TAG, "Updating level cluster failed: %x", status);
++    }
++}
+diff --git a/examples/lighting-app/esp32/main/Button.cpp b/examples/lighting-app/esp32/main/Button.cpp
+new file mode 100644
+index 0000000000..73a3758818
+--- /dev/null
++++ b/examples/lighting-app/esp32/main/Button.cpp
+@@ -0,0 +1,48 @@
++#include "Button.h"
++
++#define GPIO_INPUT_IO_0 9
++#define GPIO_INPUT_PIN_SEL (1ULL << GPIO_INPUT_IO_0)
++#define ESP_INTR_FLAG_DEFAULT 0
++
++static const char * TAG = "Button";
++
++static Button::ButtonPressCallback button_press_handler = nullptr;
++
++static void IRAM_ATTR gpio_isr_handler(void * arg)
++{
++    if (button_press_handler != nullptr)
++    {
++        button_press_handler();
++    }
++}
++
++void Button::Init()
++{
++    /* Initialize button interrupt*/
++    // zero-initialize the config structure.
++    gpio_config_t io_conf = {};
++    // interrupt of rising edge
++    io_conf.intr_type = GPIO_INTR_NEGEDGE;
++    // bit mask of the pins, use GPIO4/5 here
++    io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
++    // set as input mode
++    io_conf.mode = GPIO_MODE_INPUT;
++    // enable pull-up mode
++    io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
++    gpio_config(&io_conf);
++
++    // install gpio isr service
++    gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
++    // hook isr handler for specific gpio pin
++    gpio_isr_handler_add(static_cast<gpio_num_t>(GPIO_INPUT_IO_0), gpio_isr_handler, (void *) GPIO_INPUT_IO_0);
++
++    ESP_LOGI(TAG, "Button initialized..");
++}
++
++void Button::SetButtonPressCallback(ButtonPressCallback button_callback)
++{
++    if (button_callback != nullptr)
++    {
++        button_press_handler = button_callback;
++    }
++}
+diff --git a/examples/lighting-app/esp32/main/DeviceCallbacks.cpp b/examples/lighting-app/esp32/main/DeviceCallbacks.cpp
+index a4a66f726b..c086184750 100644
+--- a/examples/lighting-app/esp32/main/DeviceCallbacks.cpp
++++ b/examples/lighting-app/esp32/main/DeviceCallbacks.cpp
+@@ -23,11 +23,18 @@
+  *
+  **/
+ 
++#include "AppTask.h"
++
+ #include "DeviceCallbacks.h"
+ #include "LEDWidget.h"
+ 
+ #include <app/util/util.h>
+ 
++#include <app-common/zap-generated/ids/Attributes.h>
++#include <app-common/zap-generated/ids/Clusters.h>
++#include <app/ConcreteAttributePath.h>
++#include <lib/support/logging/CHIPLogging.h>
++
+ static const char * TAG = "light-app-callbacks";
+ 
+ extern LEDWidget AppLED;
+@@ -118,3 +125,23 @@ exit:
+     return;
+ }
+ #endif // CONFIG_LED_TYPE_RMT
++
++/** @brief OnOff Cluster Init
++ *
++ * This function is called when a specific cluster is initialized. It gives the
++ * application an opportunity to take care of cluster initialization procedures.
++ * It is called exactly once for each endpoint where cluster is present.
++ *
++ * @param endpoint   Ver.: always
++ *
++ * emberAfOnOffClusterInitCallback happens before the stack initialize the cluster
++ * attributes to the default value.
++ * The logic here expects something similar to the deprecated Plugins callback
++ * emberAfPluginOnOffClusterServerPostInitCallback.
++ *
++ */
++void emberAfOnOffClusterInitCallback(EndpointId endpoint)
++{
++    ESP_LOGI(TAG, "emberAfOnOffClusterInitCallback");
++    GetAppTask().UpdateClusterState();
++}
+\ No newline at end of file
+diff --git a/examples/lighting-app/esp32/main/LEDWidget.cpp b/examples/lighting-app/esp32/main/LEDWidget.cpp
+index 893311d46f..8eb1aa5114 100644
+--- a/examples/lighting-app/esp32/main/LEDWidget.cpp
++++ b/examples/lighting-app/esp32/main/LEDWidget.cpp
+@@ -18,6 +18,8 @@
+ #include "LEDWidget.h"
+ #include "ColorFormat.h"
+ 
++static const char * TAG = "LEDWidget";
++
+ void LEDWidget::Init(void)
+ {
+     mState      = false;
+@@ -59,6 +61,7 @@ void LEDWidget::Init(void)
+ 
+ void LEDWidget::Set(bool state)
+ {
++    ESP_LOGI(TAG, "Setting state to %d", state ? 1 : 0);
+     if (state == mState)
+         return;
+ 
+@@ -67,8 +70,17 @@ void LEDWidget::Set(bool state)
+     DoSet();
+ }
+ 
++void LEDWidget::Toggle()
++{
++    ESP_LOGI(TAG, "Toggling state to %d", !mState);
++    mState = !mState;
++
++    DoSet();
++}
++
+ void LEDWidget::SetBrightness(uint8_t brightness)
+ {
++    ESP_LOGI(TAG, "Setting brightness to %d", brightness);
+     if (brightness == mBrightness)
+         return;
+ 
+@@ -77,6 +89,16 @@ void LEDWidget::SetBrightness(uint8_t brightness)
+     DoSet();
+ }
+ 
++uint8_t LEDWidget::GetLevel()
++{
++    return this->mBrightness;
++}
++
++bool LEDWidget::IsTurnedOn()
++{
++    return this->mState;
++}
++
+ #if CONFIG_LED_TYPE_RMT
+ void LEDWidget::SetColor(uint8_t Hue, uint8_t Saturation)
+ {
+@@ -104,6 +126,7 @@ void LEDWidget::DoSet(void)
+         mStrip->refresh(mStrip, 100);
+     }
+ #else
++    ESP_LOGE(TAG, "DoSet to GPIO number %d", mGPIONum);
+     if (mGPIONum < GPIO_NUM_MAX)
+     {
+         ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, brightness);
+diff --git a/examples/lighting-app/esp32/main/include/AppEvent.h b/examples/lighting-app/esp32/main/include/AppEvent.h
+new file mode 100644
+index 0000000000..65ebd7aedc
+--- /dev/null
++++ b/examples/lighting-app/esp32/main/include/AppEvent.h
+@@ -0,0 +1,54 @@
++/*
++ *
++ *    Copyright (c) 2022 Project CHIP Authors
++ *    All rights reserved.
++ *
++ *    Licensed under the Apache License, Version 2.0 (the "License");
++ *    you may not use this file except in compliance with the License.
++ *    You may obtain a copy of the License at
++ *
++ *        http://www.apache.org/licenses/LICENSE-2.0
++ *
++ *    Unless required by applicable law or agreed to in writing, software
++ *    distributed under the License is distributed on an "AS IS" BASIS,
++ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ *    See the License for the specific language governing permissions and
++ *    limitations under the License.
++ */
++
++#pragma once
++
++struct AppEvent;
++typedef void (*EventHandler)(AppEvent *);
++
++struct AppEvent
++{
++    enum AppEventTypes
++    {
++        kEventType_Button = 0,
++        kEventType_Timer,
++        kEventType_Light,
++        kEventType_Install,
++    };
++
++    uint16_t Type;
++
++    union
++    {
++        struct
++        {
++            uint8_t Action;
++        } ButtonEvent;
++        struct
++        {
++            void * Context;
++        } TimerEvent;
++        struct
++        {
++            uint8_t Action;
++            int32_t Actor;
++        } LightEvent;
++    };
++
++    EventHandler mHandler;
++};
+diff --git a/examples/lighting-app/esp32/main/include/AppTask.h b/examples/lighting-app/esp32/main/include/AppTask.h
+new file mode 100644
+index 0000000000..9271ebd349
+--- /dev/null
++++ b/examples/lighting-app/esp32/main/include/AppTask.h
+@@ -0,0 +1,68 @@
++/*
++ *
++ *    Copyright (c) 2022 Project CHIP Authors
++ *    All rights reserved.
++ *
++ *    Licensed under the Apache License, Version 2.0 (the "License");
++ *    you may not use this file except in compliance with the License.
++ *    You may obtain a copy of the License at
++ *
++ *        http://www.apache.org/licenses/LICENSE-2.0
++ *
++ *    Unless required by applicable law or agreed to in writing, software
++ *    distributed under the License is distributed on an "AS IS" BASIS,
++ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ *    See the License for the specific language governing permissions and
++ *    limitations under the License.
++ */
++
++#pragma once
++
++#include <stdbool.h>
++#include <stdint.h>
++
++#include "AppEvent.h"
++#include "Button.h"
++#include "LEDWidget.h"
++#include "freertos/FreeRTOS.h"
++#include <platform/CHIPDeviceLayer.h>
++
++// Application-defined error codes in the CHIP_ERROR space.
++#define APP_ERROR_EVENT_QUEUE_FAILED CHIP_APPLICATION_ERROR(0x01)
++#define APP_ERROR_CREATE_TASK_FAILED CHIP_APPLICATION_ERROR(0x02)
++#define APP_ERROR_UNHANDLED_EVENT CHIP_APPLICATION_ERROR(0x03)
++#define APP_ERROR_CREATE_TIMER_FAILED CHIP_APPLICATION_ERROR(0x04)
++#define APP_ERROR_START_TIMER_FAILED CHIP_APPLICATION_ERROR(0x05)
++#define APP_ERROR_STOP_TIMER_FAILED CHIP_APPLICATION_ERROR(0x06)
++
++extern LEDWidget AppLED;
++extern Button AppButton;
++
++class AppTask
++{
++
++public:
++    CHIP_ERROR StartAppTask();
++    static void AppTaskMain(void * pvParameter);
++    void PostEvent(const AppEvent * event);
++
++    void ButtonEventHandler(const uint8_t buttonHandle, uint8_t btnAction);
++
++    void UpdateClusterState();
++
++private:
++    friend AppTask & GetAppTask(void);
++    CHIP_ERROR Init();
++    void DispatchEvent(AppEvent * event);
++    static void SwitchActionEventHandler(AppEvent * aEvent);
++    static void LightingActionEventHandler(AppEvent * aEvent);
++
++    static void ButtonPressCallback();
++
++    static AppTask sAppTask;
++};
++
++inline AppTask & GetAppTask(void)
++{
++    return AppTask::sAppTask;
++}
+diff --git a/examples/lighting-app/esp32/main/include/Button.h b/examples/lighting-app/esp32/main/include/Button.h
+new file mode 100644
+index 0000000000..17a08d7c1a
+--- /dev/null
++++ b/examples/lighting-app/esp32/main/include/Button.h
+@@ -0,0 +1,30 @@
++/*
++ *
++ *    Copyright (c) 2021 Project CHIP Authors
++ *
++ *    Licensed under the Apache License, Version 2.0 (the "License");
++ *    you may not use this file except in compliance with the License.
++ *    You may obtain a copy of the License at
++ *
++ *        http://www.apache.org/licenses/LICENSE-2.0
++ *
++ *    Unless required by applicable law or agreed to in writing, software
++ *    distributed under the License is distributed on an "AS IS" BASIS,
++ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ *    See the License for the specific language governing permissions and
++ *    limitations under the License.
++ */
++
++#pragma once
++
++#include "driver/gpio.h"
++#include "esp_log.h"
++
++class Button
++{
++public:
++    typedef void (*ButtonPressCallback)(void);
++
++    void Init(void);
++    void SetButtonPressCallback(ButtonPressCallback button_callback);
++};
+diff --git a/examples/lighting-app/esp32/main/include/LEDWidget.h b/examples/lighting-app/esp32/main/include/LEDWidget.h
+index c60ee9271c..c390d63ac1 100644
+--- a/examples/lighting-app/esp32/main/include/LEDWidget.h
++++ b/examples/lighting-app/esp32/main/include/LEDWidget.h
+@@ -18,6 +18,7 @@
+ #pragma once
+ 
+ #include "driver/gpio.h"
++#include "esp_log.h"
+ 
+ #if CONFIG_LED_TYPE_RMT
+ #include "driver/rmt.h"
+@@ -31,14 +32,16 @@ class LEDWidget
+ {
+ public:
+     void Init(void);
+-
+     void Set(bool state);
++    void Toggle(void);
+ 
+     void SetBrightness(uint8_t brightness);
+-
++    void UpdateState();
+ #if CONFIG_LED_TYPE_RMT
+     void SetColor(uint8_t Hue, uint8_t Saturation);
+ #endif
++    uint8_t GetLevel(void);
++    bool IsTurnedOn(void);
+ 
+ private:
+     bool mState;
+diff --git a/examples/lighting-app/esp32/main/main.cpp b/examples/lighting-app/esp32/main/main.cpp
+index 748ad7ea67..042db7a80e 100644
+--- a/examples/lighting-app/esp32/main/main.cpp
++++ b/examples/lighting-app/esp32/main/main.cpp
+@@ -16,7 +16,8 @@
+  */
+ 
+ #include "DeviceCallbacks.h"
+-#include "LEDWidget.h"
++
++#include "AppTask.h"
+ #include <common/CHIPDeviceManager.h>
+ #include <common/Esp32AppServer.h>
+ 
+@@ -32,8 +33,7 @@
+ 
+ using namespace ::chip;
+ using namespace ::chip::DeviceManager;
+-
+-LEDWidget AppLED;
++using namespace ::chip::DeviceLayer;
+ 
+ static const char * TAG = "light-app";
+ 
+@@ -89,7 +89,12 @@ extern "C" void app_main()
+         return;
+     }
+ #endif
+-    AppLED.Init();
+ 
+     chip::DeviceLayer::PlatformMgr().ScheduleWork(InitServer, reinterpret_cast<intptr_t>(nullptr));
++
++    error = GetAppTask().StartAppTask();
++    if (error != CHIP_NO_ERROR)
++    {
++        ESP_LOGE(TAG, "GetAppTask().StartAppTask() failed : %s", ErrorStr(error));
++    }
+ }
+-- 
+2.36.1
+
