@@ -3,7 +3,9 @@ name: Build and Publish Matter Example firmware
 on:
   push:
     branches: [ main ]
+    paths: .github/workflows/build.yaml
   pull_request:
+    paths: .github/workflows/build.yaml
   workflow_dispatch:
 
 jobs:
