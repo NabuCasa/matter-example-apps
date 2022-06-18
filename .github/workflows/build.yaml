@@ -114,7 +114,8 @@ jobs:
         shell: bash
         run: |
           for file in */*/manifest.json; do
-              jq ".version = \"${{ needs.build.outputs.hash }}\"" "${file}" > "${file}"
+              jq ".version = \"${{ needs.build.outputs.hash }}\"" "${file}" > "${file}.tmp"
+              mv "${file}.tmp" "${file}"
           done
       - name: Copy artifacts
         shell: bash
