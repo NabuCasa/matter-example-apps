@@ -49,6 +49,9 @@ jobs:
     container:
       image: connectedhomeip/chip-build-esp32:0.5.77
 
+    outputs:
+      git-hash: ${{ steps.git-version.outputs.hash }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -60,6 +63,12 @@ jobs:
           ref: 5d8599d195a93dfe5473f64e4f888c322e5df1d2
           submodules: true
           path: connectedhomeip
+
+      - name: Get firmware git hash
+        run: |
+          ghash=$(git -C connectedhomeip rev-parse --short HEAD)
+          echo "::set-output name=hash::${ghash}"
+        id: git-version
 
       - name: Build
         shell: bash
@@ -100,12 +109,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3.0.2
 
-      - name: Get firmware git hash
-        run: |
-          ghash=$(git submodule status connectedhomeip | cut -b 2-10)
-          echo "::set-output name=hash::${ghash}"
-        id: git-version
-
       - uses: actions/download-artifact@v3.0.0
         with:
           path: artifacts/
@@ -114,17 +117,18 @@ jobs:
         shell: bash
         run: |
           for file in */*/manifest.json; do
-              jq ".version = \"${{ steps.git-version.outputs.hash }}\"" "${file}" > "${file}"
+              jq ".version = \"${{ needs.build.outputs.git-hash }}\"" "${file}" > "${file}.tmp"
+              mv "${file}.tmp" "${file}"
           done
       - name: Copy artifacts
         shell: bash
         run: |
-          cp -R "artifacts/"* ./
+          cp -R "artifacts/"*/* ./
           rm -r "artifacts/"
  
       - name: Deploy 🚀
         uses: EndBug/add-and-commit@v9
         with:
-          message: Bump firmware version to ${{ steps.git-version.outputs.hash }}
+          message: Bump firmware version to ${{ needs.build.outputs.git-hash }}
           committer_name: GitHub Actions
           committer_email: actions@github.com
