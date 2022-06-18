@@ -2,6 +2,10 @@ name: Build and Publish Matter Example firmware
 
 on:
   push:
+    branches: [ main ]
+    paths: .github/workflows/build.yaml
+  pull_request:
+    paths: .github/workflows/build.yaml
   workflow_dispatch:
 
 jobs:
@@ -46,10 +50,16 @@ jobs:
       image: connectedhomeip/chip-build-esp32:0.5.77
 
     steps:
-      - name: Checkout sources
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout CHIP repository
         uses: actions/checkout@v3
         with:
+          repository: project-chip/connectedhomeip
+          ref: 55ab764beabaed8675bd60e6d18e84d545a733e0
           submodules: true
+          path: connectedhomeip
 
       - name: Build
         shell: bash
@@ -83,6 +93,7 @@ jobs:
   publish:
     name: Publish new firmware and website to GitHub Pages
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     permissions:
       contents: write
     needs: [build]
