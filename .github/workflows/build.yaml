@@ -1,0 +1,119 @@
+name: Build and Publish Matter Example firmware
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+
+  # Inspired by .github/workflows/examples-esp32.yaml
+  build:
+    name: Build ${{ matrix.firmware.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        firmware:
+          - {
+              "name": "lighting-app-esp32-c3",
+              "dir": "lighting-app-example/esp32-c3/",
+              "root": "examples/lighting-app/esp32/",
+              "appbin": "chip-lighting-app.bin",
+              "idf_target": "esp32c3"
+            }
+          - {
+              "name": "lighting-app-esp32-c3-m5stamp",
+              "dir": "lighting-app-example/esp32-c3-m5stamp/",
+              "root": "examples/lighting-app/esp32/",
+              "appbin": "chip-lighting-app.bin",
+              "idf_target": "esp32c3"
+            }
+          - {
+              "name": "light-switch-app-esp32-c3",
+              "dir": "light-switch-app-example/esp32-c3/",
+              "root": "examples/light-switch-app/esp32/",
+              "appbin": "chip-light-switch-app.bin",
+              "idf_target": "esp32c3"
+            }
+          - {
+              "name": "all-clusters-app-esp32-m5-basic-core",
+              "dir": "all-clusters-app-example/esp32-m5-basic-core/",
+              "root": "examples/all-clusters-app/esp32/",
+              "appbin": "chip-all-clusters-app.bin",
+              "idf_target": "esp32"
+            }
+
+    container:
+      image: connectedhomeip/chip-build-esp32:0.5.77
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Build
+        shell: bash
+        run: |
+          cd connectedhomeip
+          scripts/checkout_submodules.py --shallow --platform esp32
+          for patch in ../${{ matrix.firmware.dir }}*.patch; do
+              patch -p1 < "${patch}"
+          done
+
+          source "$IDF_PATH/export.sh"
+          root="${{ matrix.firmware.root }}"
+          rm -f "$root"/sdkconfig
+          cp "../${{ matrix.firmware.dir }}/sdkconfig.defaults" "${root}"
+          (
+            cd "$root"
+            idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults" set-target "${{ matrix.firmware.idf_target }}" build
+          )
+          mkdir -p ../deploy/${{ matrix.firmware.dir }}
+          cp ${{ matrix.firmware.root }}/build/${{ matrix.firmware.appbin }} ../deploy/${{ matrix.firmware.dir }}
+          cp ${{ matrix.firmware.root }}/build/bootloader/bootloader.bin ../deploy/${{ matrix.firmware.dir }}
+          cp ${{ matrix.firmware.root }}/build/partition_table/partition-table.bin ../deploy/${{ matrix.firmware.dir }}
+          cp ${{ matrix.firmware.root }}/build/ota_data_initial.bin ../deploy/${{ matrix.firmware.dir }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          name: ${{ matrix.firmware.name }}
+          path: deploy
+
+  publish:
+    name: Publish new firmware and website to GitHub Pages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v3.0.2
+
+      - name: Get firmware git hash
+        run: |
+          ghash=$(git submodule status connectedhomeip | cut -b 2-10)
+          echo "::set-output name=hash::${ghash}"
+        id: git-version
+
+      - uses: actions/download-artifact@v3.0.0
+        with:
+          path: artifacts/
+
+      - name: Set version in manifest.json
+        shell: bash
+        run: |
+          for file in */*/manifest.json; do
+              jq ".version = \"${{ steps.git-version.outputs.hash }}\"" "${file}" > "${file}"
+          done
+      - name: Copy artifacts
+        shell: bash
+        run: |
+          cp -R "artifacts/"* ./
+          rm -r "artifacts/"
+ 
+      - name: Deploy 🚀
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: Bump firmware version to ${{ steps.git-version.outputs.hash }}
+          committer_name: GitHub Actions
+          committer_email: actions@github.com
