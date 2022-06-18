@@ -2,7 +2,7 @@ name: Build and Publish Matter Example firmware
 
 on:
   push:
-    branches: [ main, fix-github-pages  ]
+    branches: [ main ]
   pull_request:
   workflow_dispatch:
 
