@@ -119,7 +119,7 @@ jobs:
       - name: Copy artifacts
         shell: bash
         run: |
-          cp -R "artifacts/"* ./
+          cp -R "artifacts/"*/* ./
           rm -r "artifacts/"
  
       - name: Deploy 🚀
