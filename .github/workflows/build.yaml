@@ -61,6 +61,12 @@ jobs:
           submodules: true
           path: connectedhomeip
 
+      - name: Get firmware git hash
+        run: |
+          ghash=$(git -C connectedhomeip rev-parse --short HEAD)
+          echo "::set-output name=hash::${ghash}"
+        id: git-version
+
       - name: Build
         shell: bash
         run: |
@@ -100,12 +106,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3.0.2
 
-      - name: Get firmware git hash
-        run: |
-          ghash=$(git submodule status connectedhomeip | cut -b 2-10)
-          echo "::set-output name=hash::${ghash}"
-        id: git-version
-
       - uses: actions/download-artifact@v3.0.0
         with:
           path: artifacts/
@@ -114,7 +114,7 @@ jobs:
         shell: bash
         run: |
           for file in */*/manifest.json; do
-              jq ".version = \"${{ steps.git-version.outputs.hash }}\"" "${file}" > "${file}"
+              jq ".version = \"${{ needs.build.outputs.hash }}\"" "${file}" > "${file}"
           done
       - name: Copy artifacts
         shell: bash
@@ -125,6 +125,6 @@ jobs:
       - name: Deploy 🚀
         uses: EndBug/add-and-commit@v9
         with:
-          message: Bump firmware version to ${{ steps.git-version.outputs.hash }}
+          message: Bump firmware version to ${{ needs.build.outputs.hash }}
           committer_name: GitHub Actions
           committer_email: actions@github.com
