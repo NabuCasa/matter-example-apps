@@ -51,7 +51,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
         with:
-          name: project-chip/connectedhomeip
+          repository: project-chip/connectedhomeip
           ref: 55ab764beabaed8675bd60e6d18e84d545a733e0
           submodules: true
 
