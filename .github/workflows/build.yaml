@@ -85,6 +85,7 @@ jobs:
           cp "../${{ matrix.firmware.dir }}/sdkconfig.defaults" "${root}"
           (
             cd "$root"
+            sed -i "s/CONFIG_DEVICE_SOFTWARE_VERSION=.*/CONFIG_DEVICE_SOFTWARE_VERSION=\"${{ steps.git-version.outputs.hash }}\"/" sdkconfig.defaults
             idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults" set-target "${{ matrix.firmware.idf_target }}" build
           )
           mkdir -p ../deploy/${{ matrix.firmware.dir }}
