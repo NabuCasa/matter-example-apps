@@ -1,5 +1,5 @@
-From 93f25f61b7d82bf25b70c6a8b17930e96f73be77 Mon Sep 17 00:00:00 2001
-Message-Id: <93f25f61b7d82bf25b70c6a8b17930e96f73be77.1655485138.git.stefan@agner.ch>
+From f6a44a408b748fe41dd9489c22d2521c58544fd0 Mon Sep 17 00:00:00 2001
+Message-Id: <f6a44a408b748fe41dd9489c22d2521c58544fd0.1657106072.git.stefan@agner.ch>
 From: Stefan Agner <stefan@agner.ch>
 Date: Wed, 15 Jun 2022 01:47:39 +0200
 Subject: [PATCH] Add Project configuration for M5 Stamp
@@ -51,5 +51,5 @@ index 0000000000..d33403c709
 +#define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_NAME "M5STAMP Lighting App"
 +#define CHIP_DEVICE_CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION_STRING "v1.0"
 -- 
-2.36.1
+2.37.0
 
