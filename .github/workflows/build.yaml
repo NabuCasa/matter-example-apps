@@ -60,7 +60,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: project-chip/connectedhomeip
-          ref: 0c8cbf555571989e7533c212fccfc89a1b08bbe9
+          ref: a1643eee5ef5534d494ae205bb586b4a9cbfee23
           submodules: true
           path: connectedhomeip
 
