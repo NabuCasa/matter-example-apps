@@ -59,6 +59,9 @@ CONFIG_LWIP_HOOK_ND6_GET_GW_DEFAULT=y
 CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
 CONFIG_ESPTOOLPY_FLASHSIZE="4MB"
 
+# Disable softap support by default
+CONFIG_ESP_WIFI_SOFTAP_SUPPORT=n
+
 #disable Bluetooth modem sleep
 #enable it may cause GPIO ISR triggers continuously
 CONFIG_BTDM_CTRL_MODEM_SLEEP=n
