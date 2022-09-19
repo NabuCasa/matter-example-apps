@@ -1,13 +1,12 @@
-From cd438914952e278821e2ed1417329f61a0c402ef Mon Sep 17 00:00:00 2001
-Message-Id: <cd438914952e278821e2ed1417329f61a0c402ef.1655485325.git.stefan@agner.ch>
+From 0eb290b36711f517e34eebd895c866d0909a1bea Mon Sep 17 00:00:00 2001
+Message-Id: <0eb290b36711f517e34eebd895c866d0909a1bea.1663594299.git.stefan@agner.ch>
 From: Stefan Agner <stefan@agner.ch>
 Date: Tue, 31 May 2022 11:57:17 +0200
 Subject: [PATCH] Add Project configuration to light switch app
 
 ---
  .../esp32/main/include/CHIPProjectConfig.h    | 35 +++++++++++++++++++
- .../light-switch-app/esp32/sdkconfig.defaults |  4 ++-
- 2 files changed, 38 insertions(+), 1 deletion(-)
+ 1 file changed, 35 insertions(+)
  create mode 100644 examples/light-switch-app/esp32/main/include/CHIPProjectConfig.h
 
 diff --git a/examples/light-switch-app/esp32/main/include/CHIPProjectConfig.h b/examples/light-switch-app/esp32/main/include/CHIPProjectConfig.h
@@ -51,19 +50,6 @@ index 0000000000..2f16ebc85d
 +#define CHIP_DEVICE_CONFIG_DEVICE_VENDOR_NAME "Nabu Casa"
 +#define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_NAME "ESP32-C3-DevKitM-1 Light Switch"
 +#define CHIP_DEVICE_CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION_STRING "v1.0"
-diff --git a/examples/light-switch-app/esp32/sdkconfig.defaults b/examples/light-switch-app/esp32/sdkconfig.defaults
-index f8d119e98c..752add8265 100644
---- a/examples/light-switch-app/esp32/sdkconfig.defaults
-+++ b/examples/light-switch-app/esp32/sdkconfig.defaults
-@@ -45,4 +45,6 @@ CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
- CONFIG_ESPTOOLPY_FLASHSIZE="4MB"
- 
- #enable debug shell
--CONFIG_ENABLE_CHIP_SHELL=y
-\ No newline at end of file
-+CONFIG_ENABLE_CHIP_SHELL=y
-+CONFIG_CHIP_PROJECT_CONFIG="main/include/CHIPProjectConfig.h"
-+CONFIG_DEVICE_SOFTWARE_VERSION="6ef806b792"
 -- 
-2.36.1
+2.37.3
 
