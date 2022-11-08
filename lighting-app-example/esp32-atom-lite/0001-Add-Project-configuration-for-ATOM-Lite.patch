@@ -1,0 +1,55 @@
+From e96e8c02d51a1b05576d048b527707192296b0fa Mon Sep 17 00:00:00 2001
+Message-Id: <e96e8c02d51a1b05576d048b527707192296b0fa.1667902887.git.stefan@agner.ch>
+From: Stefan Agner <stefan@agner.ch>
+Date: Wed, 15 Jun 2022 01:47:39 +0200
+Subject: [PATCH 1/2] Add Project configuration for ATOM Lite
+
+---
+ .../esp32/main/include/CHIPProjectConfig.h    | 35 +++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+ create mode 100644 examples/lighting-app/esp32/main/include/CHIPProjectConfig.h
+
+diff --git a/examples/lighting-app/esp32/main/include/CHIPProjectConfig.h b/examples/lighting-app/esp32/main/include/CHIPProjectConfig.h
+new file mode 100644
+index 0000000000..f3cbe082ee
+--- /dev/null
++++ b/examples/lighting-app/esp32/main/include/CHIPProjectConfig.h
+@@ -0,0 +1,35 @@
++/*
++ *
++ *    Copyright (c) 2020 Project CHIP Authors
++ *    All rights reserved.
++ *
++ *    Licensed under the Apache License, Version 2.0 (the "License");
++ *    you may not use this file except in compliance with the License.
++ *    You may obtain a copy of the License at
++ *
++ *        http://www.apache.org/licenses/LICENSE-2.0
++ *
++ *    Unless required by applicable law or agreed to in writing, software
++ *    distributed under the License is distributed on an "AS IS" BASIS,
++ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ *    See the License for the specific language governing permissions and
++ *    limitations under the License.
++ */
++
++/**
++ *    @file
++ *          Example project configuration file for CHIP.
++ *
++ *          This is a place to put application or project-specific overrides
++ *          to the default configuration values for general CHIP features.
++ *
++ */
++
++#pragma once
++
++// Use a default pairing code if one hasn't been provisioned in flash.
++#define CHIP_DEVICE_CONFIG_USE_TEST_SETUP_PIN_CODE 20202021
++#define CHIP_DEVICE_CONFIG_USE_TEST_SETUP_DISCRIMINATOR 0xF00
++#define CHIP_DEVICE_CONFIG_DEVICE_VENDOR_NAME "Nabu Casa"
++#define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_NAME "ATOM Lite Lighting App"
++#define CHIP_DEVICE_CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION_STRING "v1.0"
+-- 
+2.37.1
+
