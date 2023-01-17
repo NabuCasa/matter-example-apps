@@ -75,6 +75,7 @@ jobs:
         run: |
           cd connectedhomeip
           scripts/checkout_submodules.py --shallow --platform esp32
+          scripts/build/gn_bootstrap.sh
           for patch in ../${{ matrix.firmware.dir }}*.patch; do
               patch -p1 < "${patch}"
           done
