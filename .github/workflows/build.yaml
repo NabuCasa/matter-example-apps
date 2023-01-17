@@ -47,7 +47,7 @@ jobs:
             }
 
     container:
-      image: connectedhomeip/chip-build-esp32:0.5.99
+      image: connectedhomeip/chip-build-esp32:0.6.18
 
     outputs:
       git-hash: ${{ steps.git-version.outputs.hash }}
