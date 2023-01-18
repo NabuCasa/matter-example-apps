@@ -1,7 +1,7 @@
-From 037d56a21034d07a2bf54d26f8815c3c046da8c1 Mon Sep 17 00:00:00 2001
-Message-Id: <037d56a21034d07a2bf54d26f8815c3c046da8c1.1657106072.git.stefan@agner.ch>
-In-Reply-To: <f6a44a408b748fe41dd9489c22d2521c58544fd0.1657106072.git.stefan@agner.ch>
-References: <f6a44a408b748fe41dd9489c22d2521c58544fd0.1657106072.git.stefan@agner.ch>
+From d1f5bae55bbdec1a78b94bb90ea14ca96276dc9a Mon Sep 17 00:00:00 2001
+Message-Id: <d1f5bae55bbdec1a78b94bb90ea14ca96276dc9a.1673968363.git.stefan@agner.ch>
+In-Reply-To: <5952134d3979c0eea1be42ef6de86e6c6c148e59.1673968363.git.stefan@agner.ch>
+References: <5952134d3979c0eea1be42ef6de86e6c6c148e59.1673968363.git.stefan@agner.ch>
 From: Stefan Agner <stefan@agner.ch>
 Date: Wed, 6 Jul 2022 13:13:17 +0200
 Subject: [PATCH] Use GPIO3 on M5Stamp
@@ -11,11 +11,12 @@ Subject: [PATCH] Use GPIO3 on M5Stamp
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/examples/lighting-app/esp32/main/Button.cpp b/examples/lighting-app/esp32/main/Button.cpp
-index 73a3758818..b224b60ab4 100644
+index aadae002b..0c7e11bd8 100644
 --- a/examples/lighting-app/esp32/main/Button.cpp
 +++ b/examples/lighting-app/esp32/main/Button.cpp
-@@ -1,6 +1,6 @@
+@@ -18,7 +18,7 @@
  #include "Button.h"
+ #include "esp_attr.h"
  
 -#define GPIO_INPUT_IO_0 9
 +#define GPIO_INPUT_IO_0 3
@@ -23,5 +24,5 @@ index 73a3758818..b224b60ab4 100644
  #define ESP_INTR_FLAG_DEFAULT 0
  
 -- 
-2.37.0
+2.39.0
 

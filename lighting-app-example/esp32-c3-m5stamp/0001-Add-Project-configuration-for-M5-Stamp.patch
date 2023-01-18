@@ -1,5 +1,5 @@
-From f6a44a408b748fe41dd9489c22d2521c58544fd0 Mon Sep 17 00:00:00 2001
-Message-Id: <f6a44a408b748fe41dd9489c22d2521c58544fd0.1657106072.git.stefan@agner.ch>
+From 5952134d3979c0eea1be42ef6de86e6c6c148e59 Mon Sep 17 00:00:00 2001
+Message-Id: <5952134d3979c0eea1be42ef6de86e6c6c148e59.1673968363.git.stefan@agner.ch>
 From: Stefan Agner <stefan@agner.ch>
 Date: Wed, 15 Jun 2022 01:47:39 +0200
 Subject: [PATCH] Add Project configuration for M5 Stamp
@@ -11,7 +11,7 @@ Subject: [PATCH] Add Project configuration for M5 Stamp
 
 diff --git a/examples/lighting-app/esp32/main/include/CHIPProjectConfig.h b/examples/lighting-app/esp32/main/include/CHIPProjectConfig.h
 new file mode 100644
-index 0000000000..d33403c709
+index 000000000..d33403c70
 --- /dev/null
 +++ b/examples/lighting-app/esp32/main/include/CHIPProjectConfig.h
 @@ -0,0 +1,35 @@
@@ -51,5 +51,5 @@ index 0000000000..d33403c709
 +#define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_NAME "M5STAMP Lighting App"
 +#define CHIP_DEVICE_CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION_STRING "v1.0"
 -- 
-2.37.0
+2.39.0
 
