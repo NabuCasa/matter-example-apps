@@ -75,12 +75,12 @@ jobs:
         run: |
           cd connectedhomeip
           scripts/checkout_submodules.py --shallow --platform esp32
-          source scripts/activate.sh
           for patch in ../${{ matrix.firmware.dir }}*.patch; do
               patch -p1 < "${patch}"
           done
 
           source "$IDF_PATH/export.sh"
+          source scripts/activate.sh
           root="${{ matrix.firmware.root }}"
           rm -f "$root"/sdkconfig
           cp "../${{ matrix.firmware.dir }}/sdkconfig.defaults" "${root}"
