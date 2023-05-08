@@ -31,6 +31,13 @@ jobs:
               "idf_target": "esp32c3"
             }
           - {
+              "name": "lighting-app-esp32-atom-lite",
+              "dir": "lighting-app-example/esp32-atom-lite/",
+              "root": "examples/lighting-app/esp32/",
+              "appbin": "chip-lighting-app.bin",
+              "idf_target": "esp32"
+            }
+          - {
               "name": "lighting-app-esp32-c3-m5stamp",
               "dir": "lighting-app-example/esp32-c3-m5stamp/",
               "root": "examples/lighting-app/esp32/",
