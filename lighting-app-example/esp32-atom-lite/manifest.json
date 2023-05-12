@@ -19,7 +19,7 @@
           "offset": 61440
         },
         {
-          "path": "chip-all-clusters-app.bin",
+          "path": "chip-lighting-app.bin",
           "offset": 131072
         }
       ]
