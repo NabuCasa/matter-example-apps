@@ -1,0 +1,28 @@
+From 98de90e9f3d398f264db10414cccac6bdf91c8c4 Mon Sep 17 00:00:00 2001
+Message-Id: <98de90e9f3d398f264db10414cccac6bdf91c8c4.1683881210.git.stefan@agner.ch>
+From: Stefan Agner <stefan@agner.ch>
+Date: Wed, 15 Jun 2022 01:45:33 +0200
+Subject: [PATCH] Modify Project configuration
+
+---
+ .../lighting-app/esp32/main/include/CHIPProjectConfig.h    | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/examples/lighting-app/esp32/main/include/CHIPProjectConfig.h b/examples/lighting-app/esp32/main/include/CHIPProjectConfig.h
+index 559895608a..3324954feb 100644
+--- a/examples/lighting-app/esp32/main/include/CHIPProjectConfig.h
++++ b/examples/lighting-app/esp32/main/include/CHIPProjectConfig.h
+@@ -45,3 +45,10 @@
+  *
+  */
+ #define CHIP_IM_MAX_NUM_SUBSCRIPTIONS 45
++
++// Use a default pairing code if one hasn't been provisioned in flash.
++#define CHIP_DEVICE_CONFIG_USE_TEST_SETUP_PIN_CODE 20202021
++#define CHIP_DEVICE_CONFIG_USE_TEST_SETUP_DISCRIMINATOR 0xF00
++#define CHIP_DEVICE_CONFIG_DEVICE_VENDOR_NAME "Nabu Casa"
++#define CHIP_DEVICE_CONFIG_DEVICE_PRODUCT_NAME "ESP32-C3-DevKitM-1 Lighting App"
++#define CHIP_DEVICE_CONFIG_DEFAULT_DEVICE_HARDWARE_VERSION_STRING "v1.0"
+-- 
+2.40.1
+
