@@ -28,7 +28,8 @@ jobs:
               "dir": "lighting-app-example/esp32-c3/",
               "root": "examples/lighting-app/esp32/",
               "appbin": "chip-lighting-app.bin",
-              "idf_target": "esp32c3"
+              "idf_target": "esp32c3",
+              "chip_ref": "v1.1.0.1"
             }
           - {
               "name": "lighting-app-esp32-atom-lite",
@@ -36,27 +37,31 @@ jobs:
               "root": "examples/lighting-app/esp32/",
               "appbin": "chip-lighting-app.bin",
               "idf_target": "esp32"
+              "chip_ref": "v1.1.0.1"
             }
           - {
               "name": "lighting-app-esp32-c3-m5stamp",
               "dir": "lighting-app-example/esp32-c3-m5stamp/",
               "root": "examples/lighting-app/esp32/",
               "appbin": "chip-lighting-app.bin",
-              "idf_target": "esp32c3"
+              "idf_target": "esp32c3",
+              "chip_ref": "v1.1.0.1"
             }
           - {
               "name": "light-switch-app-esp32-c3",
               "dir": "light-switch-app-example/esp32-c3/",
               "root": "examples/light-switch-app/esp32/",
               "appbin": "chip-light-switch-app.bin",
-              "idf_target": "esp32c3"
+              "idf_target": "esp32c3",
+              "chip_ref": "4088a77f557e8571a39338fad51a1d8eb0131d79"
             }
           - {
               "name": "all-clusters-app-esp32-m5-basic-core",
               "dir": "all-clusters-app-example/esp32-m5-basic-core/",
               "root": "examples/all-clusters-app/esp32/",
               "appbin": "chip-all-clusters-app.bin",
-              "idf_target": "esp32"
+              "idf_target": "esp32",
+              "chip_ref": "4088a77f557e8571a39338fad51a1d8eb0131d79"
             }
 
     container:
@@ -73,7 +78,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: project-chip/connectedhomeip
-          ref: 4088a77f557e8571a39338fad51a1d8eb0131d79
+          ref: ${{ matrix.firmware.idf_target }}
           submodules: true
           path: connectedhomeip
 
