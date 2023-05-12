@@ -1,6 +1,6 @@
 {
   "name": "Matter Lighting App Example for ATOM Lite",
-  "version": "4088a77",
+  "version": "v1.1.0.1",
   "new_install_improv_wait_time": 0,
   "builds": [
     {

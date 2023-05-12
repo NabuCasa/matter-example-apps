@@ -1,0 +1,85 @@
+From 0879b59b704fe8b1b0f3ea2346a151a8649e4b0d Mon Sep 17 00:00:00 2001
+Message-Id: <0879b59b704fe8b1b0f3ea2346a151a8649e4b0d.1683901684.git.stefan@agner.ch>
+From: Stefan Agner <stefan@agner.ch>
+Date: Fri, 12 May 2023 15:55:58 +0200
+Subject: [PATCH] Support Button to trigger LED
+
+---
+ examples/lighting-app/esp32/main/AppTask.cpp      | 15 +++++++++++++++
+ .../lighting-app/esp32/main/Kconfig.projbuild     |  9 +++++++++
+ .../lighting-app/esp32/main/include/AppTask.h     |  1 +
+ 3 files changed, 25 insertions(+)
+
+diff --git a/examples/lighting-app/esp32/main/AppTask.cpp b/examples/lighting-app/esp32/main/AppTask.cpp
+index 6369cf9108..317613874e 100644
+--- a/examples/lighting-app/esp32/main/AppTask.cpp
++++ b/examples/lighting-app/esp32/main/AppTask.cpp
+@@ -38,6 +38,7 @@ using namespace ::chip::DeviceLayer;
+ static const char * TAG = "app-task";
+ 
+ LEDWidget AppLED;
++Button gButtons[BUTTON_NUMBER] = { Button((gpio_num_t) CONFIG_BUTTON_GPIO) };
+ 
+ namespace {
+ constexpr EndpointId kLightEndpointId = 1;
+@@ -104,11 +105,25 @@ void AppTask::ButtonPressedAction(AppEvent * aEvent)
+ }
+ #endif
+ 
++esp_err_t AppTask::InitButtons()
++{
++    esp_err_t err;
++
++    // Initialize the buttons.
++    err = gpio_install_isr_service(0);
++    ESP_RETURN_ON_ERROR(err, TAG, "Button preInit failed: %s", esp_err_to_name(err));
++    gButtons[0].Init();
++    ESP_LOGI(TAG, "Button initialized");
++
++    return err;
++}
++
+ CHIP_ERROR AppTask::Init()
+ {
+     CHIP_ERROR err = CHIP_NO_ERROR;
+ 
+     AppLED.Init();
++    InitButtons();
+ 
+ #if CONFIG_HAVE_DISPLAY
+     InitDeviceDisplay();
+diff --git a/examples/lighting-app/esp32/main/Kconfig.projbuild b/examples/lighting-app/esp32/main/Kconfig.projbuild
+index d994865b7a..0b177035ca 100644
+--- a/examples/lighting-app/esp32/main/Kconfig.projbuild
++++ b/examples/lighting-app/esp32/main/Kconfig.projbuild
+@@ -99,6 +99,15 @@ menu "Demo"
+         help
+             GPIO number (IOxx) to blink on and off or the RMT signal for the addressable LED.
+ 
++    config BUTTON_GPIO
++        int "Button GPIO number"
++        range 0 48
++        default 2 if DEVICE_TYPE_ESP32_C3_DEVKITM
++        default 3
++        help
++            GPIO number (IOxx) for a Button to turn on and off the light.
++
++
+     choice
+       prompt "Rendezvous Mode"
+       default RENDEZVOUS_MODE_BLE
+diff --git a/examples/lighting-app/esp32/main/include/AppTask.h b/examples/lighting-app/esp32/main/include/AppTask.h
+index a7ba938739..5acda474da 100644
+--- a/examples/lighting-app/esp32/main/include/AppTask.h
++++ b/examples/lighting-app/esp32/main/include/AppTask.h
+@@ -52,6 +52,7 @@ public:
+ 
+ private:
+     friend AppTask & GetAppTask(void);
++    esp_err_t InitButtons();
+     CHIP_ERROR Init();
+     void DispatchEvent(AppEvent * event);
+     static void SwitchActionEventHandler(AppEvent * aEvent);
+-- 
+2.40.1
+

@@ -52,6 +52,9 @@ CONFIG_ESPTOOLPY_FLASHSIZE="4MB"
 
 # Disable softap support by default
 CONFIG_ESP_WIFI_SOFTAP_SUPPORT=n
+# This example uses the older version of RMT driver to work with both
+# idf-v4.4.3 and idf-v5.0, so suppressing the warnings by setting below option
+CONFIG_RMT_SUPPRESS_DEPRECATE_WARN=y
 
 CONFIG_ENABLE_CHIP_SHELL=y
 CONFIG_CHIP_PROJECT_CONFIG="main/include/CHIPProjectConfig.h"
@@ -59,3 +62,4 @@ CONFIG_DEVICE_SOFTWARE_VERSION="UNKNOWN"
 CONFIG_USE_TEST_SERIAL_NUMBER=""
 CONFIG_LED_GPIO=27
 CONFIG_LED_TYPE_RMT=y
+CONFIG_BUTTON_GPIO=39
