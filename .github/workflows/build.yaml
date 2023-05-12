@@ -36,7 +36,7 @@ jobs:
               "dir": "lighting-app-example/esp32-atom-lite/",
               "root": "examples/lighting-app/esp32/",
               "appbin": "chip-lighting-app.bin",
-              "idf_target": "esp32"
+              "idf_target": "esp32",
               "chip_ref": "v1.1.0.1"
             }
           - {
