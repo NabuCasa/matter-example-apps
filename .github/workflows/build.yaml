@@ -79,7 +79,6 @@ jobs:
         with:
           repository: project-chip/connectedhomeip
           ref: ${{ matrix.firmware.chip_ref }}
-          submodules: true
           path: connectedhomeip
 
       # Fixup for Matter v1.1 (see https://github.com/project-chip/connectedhomeip/pull/28507/files)
