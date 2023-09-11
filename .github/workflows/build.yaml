@@ -72,10 +72,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout CHIP repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: project-chip/connectedhomeip
           ref: ${{ matrix.firmware.chip_ref }}
@@ -127,7 +127,7 @@ jobs:
       contents: write
     needs: [build]
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v3.0.2
         with:
