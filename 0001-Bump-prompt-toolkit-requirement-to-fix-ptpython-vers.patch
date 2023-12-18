@@ -1,5 +1,5 @@
-From 1536ca20c5917578ca40ce509400e97b52751788 Mon Sep 17 00:00:00 2001
-Message-ID: <1536ca20c5917578ca40ce509400e97b52751788.1702906889.git.stefan@agner.ch>
+From 1a2e71258fe03fc009ca67e5150c6006d834736d Mon Sep 17 00:00:00 2001
+Message-ID: <1a2e71258fe03fc009ca67e5150c6006d834736d.1702907703.git.stefan@agner.ch>
 From: Andrei Litvin <andy314@gmail.com>
 Date: Wed, 13 Dec 2023 13:27:16 -0500
 Subject: [PATCH] Bump prompt-toolkit requirement to fix ptpython version
@@ -10,17 +10,17 @@ Subject: [PATCH] Bump prompt-toolkit requirement to fix ptpython version
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/scripts/setup/constraints.txt b/scripts/setup/constraints.txt
-index b0e9aed4ae..ad80df20c4 100644
+index 5322b58f7f..892e91964a 100644
 --- a/scripts/setup/constraints.txt
 +++ b/scripts/setup/constraints.txt
-@@ -163,7 +163,7 @@ portpicker==1.5.2
+@@ -237,7 +237,7 @@ prettytable==2.5.0
      # via
-     #   -r requirements.all.txt
-     #   mobly
+     #   mbed-ls
+     #   mbed-os-tools
 -prompt-toolkit==3.0.38
 +prompt-toolkit==3.0.43
      # via ipython
- protobuf==4.24.4
+ protobuf==3.20.1
      # via
 -- 
 2.43.0
