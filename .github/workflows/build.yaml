@@ -82,6 +82,14 @@ jobs:
           submodules: true
           path: connectedhomeip
 
+      - name: Apply global patches
+        shell: bash
+        run: |
+          cd connectedhomeip
+          for patch in ../*.patch; do
+              patch -p1 < "${patch}"
+          done
+
       - name: Get firmware git hash
         run: |
           ghash=$(git -C connectedhomeip rev-parse --short HEAD)
