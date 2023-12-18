@@ -82,6 +82,10 @@ jobs:
           submodules: true
           path: connectedhomeip
 
+      # Fixup for Matter v1.1 (see https://github.com/project-chip/connectedhomeip/pull/28507/files)
+      - name: Fixup GdbGui requirement
+        run: perl -i -pe 's/^gdbgui==/# gdbgui==/' /opt/espressif/esp-idf/requirements.txt
+
       - name: Apply global patches
         shell: bash
         run: |
