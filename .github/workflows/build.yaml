@@ -29,7 +29,7 @@ jobs:
               "root": "examples/lighting-app/esp32/",
               "appbin": "chip-lighting-app.bin",
               "idf_target": "esp32c3",
-              "chip_ref": "v1.1.0.1"
+              "chip_ref": "v1.1.0.2"
             }
           - {
               "name": "lighting-app-esp32-atom-lite",
@@ -37,7 +37,7 @@ jobs:
               "root": "examples/lighting-app/esp32/",
               "appbin": "chip-lighting-app.bin",
               "idf_target": "esp32",
-              "chip_ref": "v1.1.0.1"
+              "chip_ref": "v1.1.0.2"
             }
           - {
               "name": "lighting-app-esp32-c3-m5stamp",
@@ -45,7 +45,7 @@ jobs:
               "root": "examples/lighting-app/esp32/",
               "appbin": "chip-lighting-app.bin",
               "idf_target": "esp32c3",
-              "chip_ref": "v1.1.0.1"
+              "chip_ref": "v1.1.0.2"
             }
           - {
               "name": "light-switch-app-esp32-c3",
@@ -53,7 +53,7 @@ jobs:
               "root": "examples/light-switch-app/esp32/",
               "appbin": "chip-light-switch-app.bin",
               "idf_target": "esp32c3",
-              "chip_ref": "v1.1.0.1"
+              "chip_ref": "v1.1.0.2"
             }
           - {
               "name": "all-clusters-app-esp32-m5-basic-core",
@@ -61,7 +61,7 @@ jobs:
               "root": "examples/all-clusters-app/esp32/",
               "appbin": "chip-all-clusters-app.bin",
               "idf_target": "esp32",
-              "chip_ref": "v1.1.0.1"
+              "chip_ref": "v1.1.0.2"
             }
 
     container:
