@@ -29,7 +29,7 @@ jobs:
               "root": "examples/lighting-app/esp32/",
               "appbin": "chip-lighting-app.bin",
               "idf_target": "esp32c3",
-              "chip_ref": "v1.1.0.1"
+              "chip_ref": "v1.1.0.2"
             }
           - {
               "name": "lighting-app-esp32-atom-lite",
@@ -37,7 +37,7 @@ jobs:
               "root": "examples/lighting-app/esp32/",
               "appbin": "chip-lighting-app.bin",
               "idf_target": "esp32",
-              "chip_ref": "v1.1.0.1"
+              "chip_ref": "v1.1.0.2"
             }
           - {
               "name": "lighting-app-esp32-c3-m5stamp",
@@ -45,7 +45,7 @@ jobs:
               "root": "examples/lighting-app/esp32/",
               "appbin": "chip-lighting-app.bin",
               "idf_target": "esp32c3",
-              "chip_ref": "v1.1.0.1"
+              "chip_ref": "v1.1.0.2"
             }
           - {
               "name": "light-switch-app-esp32-c3",
@@ -53,7 +53,7 @@ jobs:
               "root": "examples/light-switch-app/esp32/",
               "appbin": "chip-light-switch-app.bin",
               "idf_target": "esp32c3",
-              "chip_ref": "v1.1.0.1"
+              "chip_ref": "v1.1.0.2"
             }
           - {
               "name": "all-clusters-app-esp32-m5-basic-core",
@@ -61,11 +61,11 @@ jobs:
               "root": "examples/all-clusters-app/esp32/",
               "appbin": "chip-all-clusters-app.bin",
               "idf_target": "esp32",
-              "chip_ref": "v1.1.0.1"
+              "chip_ref": "v1.1.0.2"
             }
 
     container:
-      image: connectedhomeip/chip-build-esp32:0.6.18
+      image: connectedhomeip/chip-build-esp32:0.7.0
 
     outputs:
       git-hash: ${{ steps.git-version.outputs.hash }}
@@ -81,6 +81,18 @@ jobs:
           ref: ${{ matrix.firmware.chip_ref }}
           submodules: true
           path: connectedhomeip
+
+      # Fixup for Matter v1.1 (see https://github.com/project-chip/connectedhomeip/pull/28507/files)
+      - name: Fixup GdbGui requirement
+        run: perl -i -pe 's/^gdbgui==/# gdbgui==/' /opt/espressif/esp-idf/requirements.txt
+
+      - name: Apply global patches
+        shell: bash
+        run: |
+          cd connectedhomeip
+          for patch in ../*.patch; do
+              patch -p1 < "${patch}"
+          done
 
       - name: Get firmware git hash
         run: |
